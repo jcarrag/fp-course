@@ -166,7 +166,6 @@ filter p (x :. xs) = let xs' = filter p xs in if p x then x :. xs' else xs'
   List a
   -> List a
   -> List a
-(++) xs Nil = xs
 (++) Nil ys = ys
 (++) (x :. xs) ys = x :. (xs ++ ys)
 
@@ -239,8 +238,14 @@ flattenAgain = flatMap id
 seqOptional ::
   List (Optional a)
   -> Optional (List a)
-seqOptional =
-  error "todo: Course.List#seqOptional"
+seqOptional Nil = Full Nil
+seqOptional xs = foldRight
+                   (\ x acc
+                      -> case x of
+                            Full x' -> mapOptional (x' :.)  acc
+                            Empty -> Empty)
+                   (Full Nil)
+                   xs
 
 -- | Find the first element in the list matching the predicate.
 --
@@ -262,8 +267,8 @@ find ::
   (a -> Bool)
   -> List a
   -> Optional a
-find =
-  error "todo: Course.List#find"
+find _ Nil = Empty
+find p (x :. xs) = if p x then Full x else find p xs
 
 -- | Determine if the length of the given list is greater than 4.
 --
@@ -281,9 +286,11 @@ find =
 lengthGT4 ::
   List a
   -> Bool
-lengthGT4 =
-  error "todo: Course.List#lengthGT4"
-
+lengthGT4 xs = let
+    f ((4, _) :. _) = True
+    f _ = False
+    in f $ drop 4 $ zip (listh [0 .. 4]) xs
+                       
 -- | Reverse a list.
 --
 -- >>> reverse Nil
@@ -298,8 +305,9 @@ lengthGT4 =
 reverse ::
   List a
   -> List a
-reverse =
-  error "todo: Course.List#reverse"
+--reverse Nil = Nil
+--reverse (x :. xs) = (reverse xs ++ (x :. Nil))
+reverse = foldLeft (flip (:.)) Nil
 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
@@ -327,8 +335,7 @@ produce f x = x :. produce f (f x)
 notReverse ::
   List a
   -> List a
-notReverse =
-  error "todo: Is it even possible?"
+notReverse = id
 
 ---- End of list exercises
 
