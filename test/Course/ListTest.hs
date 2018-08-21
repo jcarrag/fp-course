@@ -103,7 +103,7 @@ filterTest =
 
 appendTest :: TestTree
 appendTest =
-  testGroup "(++)" [
+  testGroup "append" [
     testCase "(1..6)" $
       (1 :. 2 :. 3 :. Nil) ++ (4 :. 5 :. 6 :. Nil) @?= listh [1,2,3,4,5,6]
   , testProperty "append empty to infinite" $
