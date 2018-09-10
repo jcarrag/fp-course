@@ -139,8 +139,22 @@ findM ::
   (a -> f Bool)
   -> List a
   -> f (Optional a)
-findM =
-  error "todo: Course.State#findM"
+--findM f xs = find isFull $ sequence $ map (\x -> map (isTrue x) (f x)) xs
+findM f xs = --P.traverse (\x -> map (isTrue x) (f x)) xs
+  let
+    --foo = (\x -> (isTrue x) <$> (f x)) xs
+    isFull (Full _) = True
+    isFull Empty = False
+    isTrue x True = Full x
+    isTrue _ False = Empty
+    --trave = P.traverse
+    bar =  map (\x -> (isTrue x) <$> (f x)) xs
+    baz = sequence  bar
+    bat = (find isFull) <$> baz
+    flat = flatten
+    bam = (>>= id) <$> bat
+  in
+    bam
 
 -- | Find the first element in a `List` that repeats.
 -- It is possible that no element repeats, hence an `Optional` result.
