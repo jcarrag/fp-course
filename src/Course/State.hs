@@ -92,14 +92,15 @@ instance Applicative (State s) where
   pure ::
     a
     -> State s a
-  pure =
-    error "todo: Course.State pure#instance (State s)"
+  pure a = State $ \s -> (a, s)
   (<*>) ::
     State s (a -> b)
     -> State s a
     -> State s b 
-  (<*>) =
-    error "todo: Course.State (<*>)#instance (State s)"
+  (<*>) (State f) (State g) = State $ \s ->
+    let (ab, s') = (f s)
+        (a, s'') = (g s')
+    in (ab a, s'')
 
 -- | Implement the `Bind` instance for `State s`.
 --
@@ -113,8 +114,11 @@ instance Monad (State s) where
     (a -> State s b)
     -> State s a
     -> State s b
-  (=<<) =
-    error "todo: Course.State (=<<)#instance (State s)"
+  --(=<<) f g = State $ \s -> f $ (eval g s)
+  (=<<) f (State g) = State $ \s ->
+    let (a, s') = g s
+        (State h) = f a
+    in h s'
 
 -- | Find the first element in a `List` that satisfies a given predicate.
 -- It is possible that no element is found, hence an `Optional` result.
