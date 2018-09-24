@@ -366,7 +366,8 @@ filtering ::
   -> List a
   -> f (List a)
 --filtering p xs = ((p *>) . p) xs
-filtering _ xs = pure xs
+filtering f xs = foldRight (\x acc -> (++) <$> ((\b -> if b then (pure x) else Nil) <$> (f x)) <*> acc) (pure Nil) xs
+--filtering f xs = (map fst) <$> (filter snd) <$> (zip xs) <$> (sequence $ f <$> xs)
 
 -----------------------
 -- SUPPORT LIBRARIES --

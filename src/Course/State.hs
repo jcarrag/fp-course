@@ -139,22 +139,10 @@ findM ::
   (a -> f Bool)
   -> List a
   -> f (Optional a)
---findM f xs = find isFull $ sequence $ map (\x -> map (isTrue x) (f x)) xs
-findM f xs = --P.traverse (\x -> map (isTrue x) (f x)) xs
-  let
-    --foo = (\x -> (isTrue x) <$> (f x)) xs
-    isFull (Full _) = True
-    isFull Empty = False
-    isTrue x True = Full x
-    isTrue _ False = Empty
-    --trave = P.traverse
-    bar =  map (\x -> (isTrue x) <$> (f x)) xs
-    baz = sequence  bar
-    bat = (find isFull) <$> baz
-    flat = flatten
-    bam = (>>= id) <$> bat
-  in
-    bam
+findM f (x :. xs) = recur =<< f x
+  where recur True = pure $ Full x
+        recur False = findM f xs
+findM _ Nil = pure Empty
 
 -- | Find the first element in a `List` that repeats.
 -- It is possible that no element repeats, hence an `Optional` result.
@@ -167,8 +155,8 @@ firstRepeat ::
   Ord a =>
   List a
   -> Optional a
-firstRepeat =
-  error "todo: Course.State#firstRepeat"
+firstRepeat xs = eval (findM state xs) S.empty
+  where state a = State $ (\s -> (S.member a s, S.insert a s))
 
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
@@ -180,8 +168,7 @@ distinct ::
   Ord a =>
   List a
   -> List a
-distinct =
-  error "todo: Course.State#distinct"
+distinct xs = xs
 
 -- | A happy number is a positive integer, where the sum of the square of its digits eventually reaches 1 after repetition.
 -- In contrast, a sad number (not a happy number) is where the sum of the square of its digits never reaches 1
