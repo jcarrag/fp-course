@@ -168,7 +168,8 @@ distinct ::
   Ord a =>
   List a
   -> List a
-distinct xs = xs
+distinct xs = eval (filtering state xs) S.empty
+  where state a = State $ (\s -> (not $ S.member a s, S.insert a s))
 
 -- | A happy number is a positive integer, where the sum of the square of its digits eventually reaches 1 after repetition.
 -- In contrast, a sad number (not a happy number) is where the sum of the square of its digits never reaches 1
