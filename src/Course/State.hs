@@ -12,6 +12,7 @@ import Course.List
 import Course.Functor
 import Course.Applicative
 import Course.Monad
+import qualified Data.Char as C
 import qualified Data.Set as S
 
 -- $setup
@@ -195,5 +196,11 @@ distinct xs = eval (filtering state xs) S.empty
 isHappy ::
   Integer
   -> Bool
-isHappy =
-  error "todo: Course.State#isHappy"
+isHappy i =
+  let
+    getDigits = map C.digitToInt . show'
+    square = join (*)
+    sumSquare = sum . map square
+    isHappy' = firstRepeat . produce (sumSquare . getDigits)
+  in
+    contains 1 $ isHappy' $ P.fromIntegral i
